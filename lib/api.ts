@@ -117,9 +117,15 @@ const MOCK_USER: User = {
 
 // GET /category/
 export async function getCategories(): Promise<Category[]> {
-  const res = await fetch(`${BASE_URL}/category/`)
-  if (!res.ok) throw new Error('Failed to fetch categories')
-  return res.json()
+  try {
+    const res = await fetch(`${BASE_URL}/category/`, { signal: AbortSignal.timeout(5000) })
+    if (!res.ok) throw new Error('API failed')
+    return res.json()
+  } catch (err) {
+    console.warn('[Fallback] Using mock categories due to API error:', err)
+    await delay(300) // simulate network delay
+    return MOCK_CATEGORIES
+  }
 }
 
 // POST /quiz/generate
